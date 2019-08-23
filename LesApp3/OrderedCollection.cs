@@ -21,7 +21,7 @@ namespace LesApp3
     {
         // Масив даних
         private KeyValuePair<TKey, TValue>[] array = new KeyValuePair<TKey, TValue>[4];
-        
+
         /// <summary>
         /// Кількість елементів внесених користувачем
         /// </summary>
@@ -45,10 +45,6 @@ namespace LesApp3
         /// Вихід за межі масиву
         /// </summary>
         string outOfRange = "\n\tСпроба вийти за межі масиву.";
-        /// <summary>
-        /// Невірний введениий тип
-        /// </summary>
-        string errorType = "\n\tСпроба ввести недопустимий тип.";
         #endregion
 
         /// <summary>
@@ -86,7 +82,7 @@ namespace LesApp3
                 throw new Exception(outOfRange);
             }
         }
-        
+
         /// <summary>
         /// Доступ до масиву по ключу
         /// </summary>
@@ -139,7 +135,7 @@ namespace LesApp3
         /// Скидання (лічильника) ітератора
         /// </summary>
         public void Reset() => position = -1;
-        
+
         /// <summary>
         /// Видалення всіх елементів
         /// </summary>
@@ -264,11 +260,23 @@ namespace LesApp3
         // не відомо, що користувач захоче в логіці порівнювати, 
         // тому надамо йому можливість реалізувати свою
         public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y)
-            => (Comparer ?? this).Compare(x, y);
+            => (Comparer ?? new NestedCompare()).Compare(x, y);
 
-        
+        /// <summary>
+        /// Перевірка рівності 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public bool Equals(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y)
+            => x.Equals(y);     // більш логічніше якщо б я користувався цим
+            //=> 0 == Compare(x, y);    // якщо опиратися на значення ключів
 
-        
+
+
+
+
+
 
         public void Add(KeyValuePair<TKey, TValue> item)
         {
@@ -280,22 +288,11 @@ namespace LesApp3
             throw new NotImplementedException();
         }
         
-
-
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
-
-
-        public bool Equals(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-
+        
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             throw new NotImplementedException();
@@ -306,8 +303,15 @@ namespace LesApp3
             throw new NotImplementedException();
         }
 
-        #region MyRegion
-#if true
+
+
+
+
+
+
+        /// <summary>
+        /// Вложений клас для логіки прівняння
+        /// </summary>
         private class NestedCompare :
             IComparer<KeyValuePair<TKey, TValue>>
         {
@@ -315,35 +319,6 @@ namespace LesApp3
             /// Невірний введениий тип
             /// </summary>
             string errorType = "\n\tСпроба ввести недопустимий тип.";
-
-
-            /// <summary>
-            /// Внутрішня логіка порівняння
-            /// </summary>
-            /// <param name="x"></param>
-            /// <param name="y"></param>
-            /// <returns></returns>
-            private int TCompare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y)
-            {
-                // перевірка типу
-                ExamType(x.Value);
-
-                dynamic a = x.Value,
-                    b = y.Value;
-
-                if (a > b)
-                {
-                    return 1;
-                }
-                else if (a < b)
-                {
-                    return -1;
-                }
-                else   // a == b
-                {
-                    return 0;
-                }
-            }
 
             /// <summary>
             /// Перевірка типу, чи можна їх порівнювати
@@ -362,13 +337,21 @@ namespace LesApp3
                 }
             }
 
+            // порівняння по ключу
+
+            /// <summary>
+            /// Внутрішня логіка порівняння
+            /// </summary>
+            /// <param name="x"></param>
+            /// <param name="y"></param>
+            /// <returns></returns>
             public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y)
             {
                 // перевірка типу
-                ExamType(x.Value);
+                ExamType(x.Key);
 
-                dynamic a = x.Value,
-                    b = y.Value;
+                dynamic a = x.Key,
+                    b = y.Key;
 
                 if (a > b)
                 {
@@ -383,10 +366,7 @@ namespace LesApp3
                     return 0;
                 }
             }
-        }  
-#endif
-        #endregion
-
+        }
 
     }
 }
