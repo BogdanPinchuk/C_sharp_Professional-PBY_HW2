@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IKeyValuePair.cs" />
     <Compile Include="KeyValuePair.cs" />
     <Compile Include="OrderedCollection.cs" />
     <Compile Include="Program.cs" />

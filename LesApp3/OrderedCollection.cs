@@ -198,6 +198,14 @@ namespace LesApp3
         }
 
         /// <summary>
+        /// Пошук першого індекса по елементу
+        /// </summary>
+        /// <param name="item">Елемент</param>
+        /// <returns></returns>
+        private int IndexOf(KeyValuePair<TKey, TValue> item)
+            => IndexOf(item);
+
+        /// <summary>
         /// Превірка наявності ключа
         /// </summary>
         /// <param name="key">ключ</param>
@@ -212,12 +220,12 @@ namespace LesApp3
         /// <returns></returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            // перша перевірка чи взагалі такий ключ 
+            // перша перевірка чи взагалі є такий ключ 
             if (ContainsKey(item.Key))
             {
                 // а так як може бути декілька значень на один ключ, то
                 return 0 > Values
-                    .Where(t => t.Equals(item.Value))
+                    .Where(t => t.Equals(item.Value) && t.Equals(item.Value))
                     .Select(t => t)
                     .ToArray()
                     .Length;
@@ -270,44 +278,142 @@ namespace LesApp3
         /// <returns></returns>
         public bool Equals(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y)
             => x.Equals(y);     // більш логічніше якщо б я користувався цим
-            //=> 0 == Compare(x, y);    // якщо опиратися на значення ключів
+                                //=> 0 == Compare(x, y);    // якщо опиратися на значення ключів
 
-
-
-
-
-
-
-        public void Add(KeyValuePair<TKey, TValue> item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(TKey key, TValue value)
-        {
-            throw new NotImplementedException();
-        }
-        
+        /// <summary>
+        /// Копіює ICollection в Array, починаючи з певного індексу
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="arrayIndex"></param>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            if (0 <= arrayIndex && arrayIndex < Count)
+            {
+                Array.Copy(this.array, arrayIndex, array, 0, Count - arrayIndex);
+            }
+
+            throw new Exception(outOfRange);
         }
-        
+
+        /// <summary>
+        /// Додавання одного елемента
+        /// </summary>
+        /// <param name="key">ключ</param>
+        /// <param name="value">значення</param>
+        public void Add(TKey key, TValue value)
+            => Add(new KeyValuePair<TKey, TValue>(key, value));
+
+        /// <summary>
+        /// Додавання одного елемента
+        /// </summary>
+        /// <param name="item">Структура</param>
+        public void Add(KeyValuePair<TKey, TValue> item)
+        {
+            // аналіз розмірів і зміна ємності при необхідності
+            AnaliseSize(ref this.array, Count, 1);
+
+            // додавання нового елемента
+            array[Count++] = item;
+        }
+
+        /// <summary>
+        /// Аналіз і зміна розмірів масива за необхідністю
+        /// </summary>
+        /// <typeparam name="T">Тип елементів</typeparam>
+        /// <param name="array">вхідний масив</param>
+        /// <param name="ownCount">Кількість власних елементів</param>
+        /// <param name="newCount">Кількість вхідних нових елементів</param>
+        private void AnaliseSize<T>(ref T[] array, int ownCount, int newCount)
+        {
+            #region вибір розміру масиву
+            // в даному випадку для керування об'ємом масиву необхідно
+            // розв'язати рівняння: capacity = 2^n > count
+            // 2^n > count
+            // log_2(2^n) > log_2(count)
+            // n > log_2(count)
+            // n = ln(count) / ln(2)
+            // а так як передається певна кількість елементів length,
+            // які необхідно доадти в масив, то рівняння прийме вигляд
+            // n = ln(count + length) / ln(2)
+            // якщо count + length >= capacity то міняємо розмір
+            #endregion
+
+            // розрахунок степіня двійки, який визначатиме ємність
+            int power = (int)Math.Ceiling(
+                Math.Log(ownCount + newCount) / Math.Log(2));
+
+            if (ownCount + newCount >= array.Length ||      // при додаванні елементів
+                (ownCount + newCount < array.Length / 2 &&  // при видаленні елементів
+                array.Length / 2 >= 4))                     // щоб не було падіння нижче ємності в 4 елементи
+            {
+                Resize<T>((int)Math.Pow(2, power), ref array);
+            }
+        }
+
+        /// <summary>
+        /// Зміна розміру масиву
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity">Нова ємність масиву</param>
+        /// <param name="coutn">Кількість чоловік певного типу</param>
+        /// <param name="array">Масив певного типу</param>
+        private void Resize<T>(int capacity, ref T[] array)
+        {
+            // створення нового масиву
+            T[] temp = new T[capacity];
+            // копіювання елементів
+            Array.Copy(array, 0, temp, 0, array.Length);
+            // змінна ссилки на новий масив
+            array = temp;
+        }
+
+        /// <summary>
+        /// Видалення елемента по індексу
+        /// </summary>
+        /// <param name="index">індекс</param>
+        public void RemoveAt(int index)
+        {
+            if ((0 <= index && index < Count) == false)
+            {
+                // вихід за межі
+                throw new Exception(outOfRange);
+            }
+
+            // зміщення елементів
+            Array.Copy(this.array, index + 1, this.array, index, Count-- - index);
+            // зміна розмірів за потребою
+            AnaliseSize(ref this.array, Count, 0);
+        }
+
+        /// <summary>
+        /// Видалення тільки першого елемента по вказаному значенню і повернення результату успішності
+        /// </summary>
+        /// <param name="item">значення</param>
+        /// <returns></returns>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
-            throw new NotImplementedException();
+            if (Contains(item))
+            {
+                RemoveAt(IndexOf(item));
+            }
+
+            return false;
         }
 
+        /// <summary>
+        /// Видалення тільки першого елемента по ключу
+        /// </summary>
+        /// <param name="key">ключ</param>
+        /// <returns></returns>
         public bool Remove(TKey key)
         {
-            throw new NotImplementedException();
+            if (ContainsKey(key))
+            {
+                RemoveAt(IndexOf(key));
+            }
+
+            return false;
         }
-
-
-
-
-
-
 
         /// <summary>
         /// Вложений клас для логіки прівняння

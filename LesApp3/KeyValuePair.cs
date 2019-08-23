@@ -14,7 +14,8 @@ namespace LesApp3
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    struct KeyValuePair<TKey, TValue>
+    struct KeyValuePair<TKey, TValue> : 
+        IKeyValuePair<TKey, TValue>
     {
         /// <summary>
         /// Ключ
