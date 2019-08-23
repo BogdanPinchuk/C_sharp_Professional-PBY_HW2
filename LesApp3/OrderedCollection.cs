@@ -65,8 +65,10 @@ namespace LesApp3
                 {
                     return array[index];
                 }
-
-                throw new Exception(outOfRange);
+                else
+                {
+                    throw new Exception(outOfRange);
+                }
             }
             set
             {
@@ -78,8 +80,10 @@ namespace LesApp3
                 {
                     Add(value);
                 }
-
-                throw new Exception(outOfRange);
+                else
+                {
+                    throw new Exception(outOfRange);
+                }
             }
         }
 
@@ -154,13 +158,13 @@ namespace LesApp3
         /// Повертає масив ключів даної колекції
         /// </summary>
         public ICollection<TKey> Keys
-            => array.Select(t => t.Key).ToArray();
+            => array.ExtractArray(Count).Select(t => t.Key).ToArray();
 
         /// <summary>
         /// Повертає масив значень даної колекції
         /// </summary>
         public ICollection<TValue> Values
-            => array.Select(t => t.Value).ToArray();
+            => array.ExtractArray(Count).Select(t => t.Value).ToArray();
 
         /// <summary>
         /// Крокування по масиву
@@ -291,8 +295,10 @@ namespace LesApp3
             {
                 Array.Copy(this.array, arrayIndex, array, 0, Count - arrayIndex);
             }
-
-            throw new Exception(outOfRange);
+            else
+            {
+                throw new Exception(outOfRange);
+            }
         }
 
         /// <summary>
@@ -380,7 +386,7 @@ namespace LesApp3
             }
 
             // зміщення елементів
-            Array.Copy(this.array, index + 1, this.array, index, Count-- - index);
+            Array.Copy(this.array, index + 1, this.array, index, Count-- - index - 1);
             // зміна розмірів за потребою
             AnaliseSize(ref this.array, Count, 0);
         }
@@ -413,6 +419,36 @@ namespace LesApp3
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Сортування даних в хронологічному порядку
+        /// </summary>
+        public void SortOrder()
+        {
+            // створюємо тимчасовий масив
+            KeyValuePair<TKey, TValue>[] temp = new KeyValuePair<TKey, TValue>[Count];
+            // копіюємо туди елементи
+            Array.Copy(array, 0, temp, 0, Count);
+            // сортуємо масив
+            temp = temp.OrderBy(t => t.Time).Select(t => t).ToArray();
+            // перезаписуємо дані в необхідному (хронологічному порядку)
+            Array.Copy(temp, 0, this.array, 0, Count);
+        }
+
+        /// <summary>
+        /// Сортування в зворотньому хронологічному порядку
+        /// </summary>
+        public void SortDescending()
+        {
+            // створюємо тимчасовий масив
+            KeyValuePair<TKey, TValue>[] temp = new KeyValuePair<TKey, TValue>[Count];
+            // копіюємо туди елементи
+            Array.Copy(array, 0, temp, 0, Count);
+            // сортуємо масив
+            temp = temp.OrderByDescending(t => t.Time).Select(t => t).ToArray();
+            // перезаписуємо дані в необхідному (хронологічному порядку)
+            Array.Copy(temp, 0, this.array, 0, Count);
         }
 
         /// <summary>

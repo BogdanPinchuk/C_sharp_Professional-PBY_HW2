@@ -47,7 +47,7 @@ namespace LesApp3
         /// </summary>
         /// <returns></returns>
         public override string ToString()
-            => $"Key: {Key}, Value: {Value};";
+            => $"Key: {Key}, Value: {Value}, Time: {Time.ToUniversalTime()}.{Time.Millisecond};";
 
         /// <summary>
         /// Хеш-код екземпляру
