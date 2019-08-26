@@ -31,8 +31,8 @@ namespace LesApp3
             Console.OutputEncoding = Encoding.Unicode;
 
             // set size of console
-            Console.SetWindowSize(80, 60);
-            Console.SetBufferSize(80, 60);
+            Console.SetWindowSize(80, 50);
+            //Console.SetBufferSize(80, 50);
 
             // create own colection
             OrderedCollection<char, int> collection = new OrderedCollection<char, int>();
